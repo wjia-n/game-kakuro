@@ -325,6 +325,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               widget.audio.chalkWrite();
               FocusScope.of(context).unfocus();
             },
+            // Commit when focus leaves too: typing a name then tapping
+            // elsewhere must not silently drop the rename.
+            onEditingComplete: () {
+              _s.setProfileName(ctrl.text);
+              widget.audio.chalkWrite();
+            },
           ),
         ),
         IconButton(
