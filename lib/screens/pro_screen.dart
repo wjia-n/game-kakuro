@@ -33,7 +33,6 @@ class _ProScreenState extends State<ProScreen> {
   @override
   void initState() {
     super.initState();
-    _store.proPurchased.addListener(_onPro);
     _store.lastThanks.addListener(_onThanks);
     _init();
   }
@@ -59,7 +58,6 @@ class _ProScreenState extends State<ProScreen> {
 
   @override
   void dispose() {
-    _store.proPurchased.removeListener(_onPro);
     _store.lastThanks.removeListener(_onThanks);
     _store.dispose();
     super.dispose();
