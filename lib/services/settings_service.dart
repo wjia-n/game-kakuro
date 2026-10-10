@@ -41,7 +41,7 @@ class StudySettings extends ChangeNotifier {
   bool mistakeLimit = false;
   bool timedDefault = false;
   bool showTimer = true;
-  bool isPro = false;
+  bool isPro = true; // everything unlocked — no Pro version
 
   int gamesPlayed = 0;
   int solved = 0;
@@ -109,7 +109,7 @@ class StudySettings extends ChangeNotifier {
     mistakeLimit = p.getBool(_kMistakeLimit) ?? false;
     timedDefault = p.getBool(_kTimedDefault) ?? false;
     showTimer = p.getBool(_kShowTimer) ?? true;
-    isPro = p.getBool(_kIsPro) ?? false;
+    isPro = true; // everything unlocked
     gamesPlayed = p.getInt(_kGames) ?? 0;
     solved = p.getInt(_kSolved) ?? 0;
     starsTotal = p.getInt(_kStars) ?? 0;
