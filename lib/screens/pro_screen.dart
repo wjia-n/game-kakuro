@@ -172,9 +172,6 @@ class _ProScreenState extends State<ProScreen> {
                                   color: theme.accent),
                             ),
                           )
-                        else if (_store.storeReady &&
-                            _store.proProduct != null)
-                          _buyPanel(theme, _store.proProduct!)
                         else
                           _notReadyPanel(theme),
                         const SizedBox(height: 18),
@@ -301,28 +298,6 @@ class _ProScreenState extends State<ProScreen> {
               style: ChalkType.small(16, theme: theme)),
         ],
       ),
-    );
-  }
-
-  Widget _buyPanel(ChalkThemeDef theme, ProductDetails p) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ChalkButton(
-          theme: theme,
-          label: 'Unlock PRO · ${p.price}',
-          active: true,
-          fontSize: 24,
-          onTap: () {
-            widget.audio.click();
-            _store.buyPro();
-          },
-        ),
-        const SizedBox(height: 6),
-        Text('One-time purchase. Yours forever, on every device.',
-            textAlign: TextAlign.center,
-            style: ChalkType.small(15, theme: theme)),
-      ],
     );
   }
 

@@ -16,6 +16,9 @@ import 'package:audioplayers/audioplayers.dart';
 ///   where it left off instead of restarting or dying.
 /// - Every public method catches player errors; audio can never crash the app.
 class StudyAudio {
+  /// Per-game pitch character (kakuro): 1.03x. Makes SFX unique.
+  static const double _pitchMul = 1.030;
+
   static const int _rate = 22050;
   final AudioPlayer _sfx = AudioPlayer();
   final AudioPlayer _music = AudioPlayer();
@@ -97,6 +100,8 @@ class StudyAudio {
 
   List<double> _tone(double freq, double secs,
       {double freqEnd = 0, double attack = 0.02, double harmonics = 0.25}) {
+    freq *= _pitchMul;
+    freqEnd *= _pitchMul;
     final n = (_rate * secs).round();
     final out = List<double>.filled(n, 0);
     for (int i = 0; i < n; i++) {
@@ -197,35 +202,44 @@ class StudyAudio {
       _cache.putIfAbsent(key, () => _wav(build()));
 
   Uint8List _menuBytes() => _clip('music_menu', () {
-        // Quiet study ambience: slow warm pads, 18s loop.
-        final seq = [
-          [146.83, 220.0, 293.66], // Dm
-          [130.81, 196.0, 261.63], // Cm
-          [174.61, 261.63, 349.23], // F
-          [146.83, 220.0, 293.66], // Dm
-        ];
+        // C# arpeggiated 0 – 3 – 5 – 4, 16s loop. Unique to kakuro.
+        final notes = [138.59, 174.61, 207.65, 174.61, 185.00, 233.08, 277.18, 233.08, 233.08, 277.18, 349.22, 277.18, 207.65, 261.62, 311.12, 261.62];
         final out = <double>[];
-        for (final chord in seq) {
-          out.addAll(_padChord(chord, 4.5));
+        final noteLen = 16.0 / notes.length;
+        for (final n in notes) {
+          out.addAll(_tone(n, noteLen * 0.9, harmonics: 0.3));
+          final gap = List<double>.filled((_rate * noteLen * 0.1).round(), 0);
+          out.addAll(gap);
+        }
+        // Soft pad underneath
+        final pad = _padChord([138.59, 174.61, 207.65], 16.0);
+        for (int i = 0; i < out.length && i < pad.length; i++) {
+          out[i] += pad[i] * 0.3;
         }
         return out;
       });
 
+
   Uint8List _gameBytes() => _clip('music_game', () {
-        // Soft music-box plucks over a low drone, 14s loop.
-        final drone = _padChord([110.0, 164.81], 14.0);
-        final plucks = [523.25, 587.33, 659.25, 587.33, 523.25, 440.0, 392.0, 440.0];
-        final n = (_rate * 14).round();
-        final out = List<double>.from(drone);
-        for (int k = 0; k < plucks.length; k++) {
-          final start = (n * k / plucks.length).round();
-          final tone = _tone(plucks[k], 0.6, harmonics: 0.15);
-          for (int i = 0; i < tone.length && start + i < n; i++) {
-            out[start + i] += tone[i] * 0.3;
+        // C# bass + melody 0 – 3 – 5 – 4, 16s loop. Unique to kakuro.
+        final bassNotes = [69.30, 92.50, 116.54, 103.83];
+        final melNotes = [415.30, 554.36, 698.44, 622.24];
+        final out = List<double>.filled((_rate * 16).round(), 0);
+        final segLen = (_rate * 4).round();
+        for (int s = 0; s < 4; s++) {
+          final bass = _tone(bassNotes[s], 3.5, harmonics: 0.4);
+          final mel = _tone(melNotes[s], 1.2, harmonics: 0.25);
+          for (int i = 0; i < bass.length && s * segLen + i < out.length; i++) {
+            out[s * segLen + i] += bass[i] * 0.5;
+          }
+          final melStart = s * segLen + segLen ~/ 4;
+          for (int i = 0; i < mel.length && melStart + i < out.length; i++) {
+            out[melStart + i] += mel[i] * 0.35;
           }
         }
         return out;
       });
+
 
   // ------------------------------------------------------------------ SFX
   Future<void> _play(Uint8List bytes) async {
