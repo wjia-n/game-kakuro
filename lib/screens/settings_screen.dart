@@ -5,6 +5,7 @@ import '../theme/chalkboard.dart';
 import '../theme/chalkboard_themes.dart';
 import 'custom_theme_screen.dart';
 import 'pro_screen.dart';
+import '../transfer/transfer_ui.dart';
 
 /// "Study Settings": chalk panels with wooden toggle pegs, chalk-circle
 /// difficulty selector, theme picker with many colorways + custom creator.
@@ -34,6 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: SafeArea(
             child: Column(
               children: [
+              TransferSaveTile(gameSlug: 'kakuro'),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                   child: Row(
